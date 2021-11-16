@@ -11,11 +11,11 @@ An example grammar is as follows,
 
 The following simply returns true and consumes a token if the inputs first character is equal to A. Else it returns false without consuming input
  
- <Terminal> = "A";
+ \<Terminal> = "A";
  
 The following return true and consumes two tokens if the inputs first two characters are AB. Else it returns false without consuming input
 
- <Sequence> = "A", "B";
+ \<Sequence> = "A", "B";
   
 The following return true and consumes one tokens if the inputs first character is A or B. Else it returns false without consuming input. Note, in a PEG grammar the leftmost option is always to be evaluated first. Which is not relevant for this example but ensures the grammar has no ambiguity in more complex cases.
 
