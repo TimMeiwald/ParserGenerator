@@ -19,25 +19,25 @@ The following return true and consumes two tokens if the inputs first two charac
   
 The following return true and consumes one tokens if the inputs first character is A or B. Else it returns false without consuming input. Note, in a PEG grammar the leftmost option is always to be evaluated first. Which is not relevant for this example but ensures the grammar has no ambiguity in more complex cases.
 
-<Ordered_Choice> = "A"/"B";
+\<Ordered_Choice> = "A"/"B";
   
  The following always returns true but only consumes input if the expression matches. It is greedy and attempts to consume as many A's as possible. This means that <This_Rule> = "A"*, "A"; always fails as the 2nd sequence value of "A" never matches as the zero or more operator will have matched it.
  
-<Zero_Or_More> = "A"*;
+\<Zero_Or_More> = "A"*;
   
 The following returns true if the expression matches at least once else it fails without consuming input. It is greedy and attempts to consume as many A's as possible. This means that <This_Rule> = "A"+, "A"; always fails as the 2nd sequence value of "A" never matches as the one or more operator will have matched it.
  
-<One_Or_More> = "A"+;
+\<One_Or_More> = "A"+;
  
 The following always returns True but only consumes input if the expression matches. 
-<Optional> = "A"?;
+\<Optional> = "A"?;
  
 The following returns true if rule <Terminal> returns True and fails if <Terminal> fails. It consumes input if <Terminal> consumes input and doesn't if <Terminal> doesn't.
 That is to say it behaves exactly like a functional call and can be used with all other operators to make *arbitrarily complex parsers.
-* that Parsing Expression Grammars can describe
+\* that Parsing Expression Grammars can describe
 
-<Var_Reference> = <Terminal>;
+\<Var_Reference> = <Terminal>;
  
 The following returns true if what's inside the brackets return true etc etc. Behaves like scoping. Theoretically one could write an entire grammar in one rule with a lot of subexpressions. This exists for ease of use and reading where a subexpression isn't meaningful but explicitly showing order of operations is helpful. 
 
-<Subexpression> = ("A");
+\<Subexpression> = ("A");
