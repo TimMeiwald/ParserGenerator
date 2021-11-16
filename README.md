@@ -7,6 +7,8 @@ The compiler output alongside intermediary outputs are shown in src/Outputs, wit
 In order to use this you simply need to give "generate_parser()" in main.py a relative filepath to the grammar and it'll output in the relative target filepath. 
 Note, It is safer to have a target filepath that consists of an empty folder to avoid the possibility of overwriting any code with the same name of some of the generated files. This may be fixed in the future
 
+TODO: Add memoization cache, return AST rather than mere True/False on successful parse.
+
 An example grammar is as follows, 
 
 The following simply returns true and consumes a token if the inputs first character is equal to A. Else it returns false without consuming input
