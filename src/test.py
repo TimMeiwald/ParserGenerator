@@ -1,6 +1,7 @@
 import sys, functools
 
 def test(parser, method, src):
+    print("\n\n")
     parser._set_src(src)
     result = method()
     print(f"Result: {result}, Position: {parser.position}")
@@ -123,13 +124,14 @@ def test_Float_1(parser):
     assert test(parser, parser.Test_Float, '-1') == (False, 0)
     assert test(parser, parser.Test_Float, '-0') == (False, 0)
     assert test(parser, parser.Test_Float, '-964"') == (False, 0)
+    assert test(parser, parser.Test_Float, '-964.0') == (True, 6)
 
 
 
 
 if __name__ == "__main__":
-    from main import generate_parser
-    generate_parser(src_filepath="Inputs\\test.txt", target_filepath="Outputs") #Generates test parser from test.txt
+    #from main import generate_parser
+    #generate_parser(src_filepath="Inputs\\test.txt", target_filepath="Outputs") #Generates test parser from test.txt
     from Outputs.Parser import Parser 
     p = Parser()
     test_Sequence_1(p)
