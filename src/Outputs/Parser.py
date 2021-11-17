@@ -177,6 +177,7 @@ class Parser():
             self.position = temp_position
             return False
 
+
     @AST_Generator_Decorator
     def Test_Sequence_1(self):
         return self._rule([self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._TERMINAL, 'a'],[self._TERMINAL, 'b']]],[self._TERMINAL, 'c']]],[self._TERMINAL, 'd']]],[self._TERMINAL, 'e']]])
@@ -216,42 +217,52 @@ class Parser():
     def Test_Subexpression_1(self):
         return self._rule([self._SUBEXPR, [[self._SEQUENCE, [[self._TERMINAL, 'a'],[self._TERMINAL, 'b']]]]])
 
+
     @AST_Generator_Decorator
     def Test_Var_Calls_1(self):
         return self._rule([self._SEQUENCE, [[self._VAR_NAME, self.Test_Ordered_Choice_1],[self._VAR_NAME, self.Test_Ordered_Choice_1]]])
+
 
     @AST_Generator_Decorator
     def Alphabet_Lower(self):
         return self._rule([self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._TERMINAL, 'a'],[self._TERMINAL, 'b']]],[self._TERMINAL, 'c']]],[self._TERMINAL, 'd']]],[self._TERMINAL, 'e']]],[self._TERMINAL, 'f']]],[self._TERMINAL, 'g']]],[self._TERMINAL, 'h']]],[self._TERMINAL, 'i']]],[self._TERMINAL, 'j']]],[self._TERMINAL, 'k']]],[self._TERMINAL, 'l']]],[self._TERMINAL, 'm']]],[self._TERMINAL, 'n']]],[self._TERMINAL, 'o']]],[self._TERMINAL, 'p']]],[self._TERMINAL, 'q']]],[self._TERMINAL, 'r']]],[self._TERMINAL, 's']]],[self._TERMINAL, 't']]],[self._TERMINAL, 'u']]],[self._TERMINAL, 'v']]],[self._TERMINAL, 'w']]],[self._TERMINAL, 'x']]],[self._TERMINAL, 'y']]],[self._TERMINAL, 'z']]])
 
+
     @AST_Generator_Decorator
     def Alphabet_Upper(self):
         return self._rule([self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._TERMINAL, 'A'],[self._TERMINAL, 'B']]],[self._TERMINAL, 'C']]],[self._TERMINAL, 'D']]],[self._TERMINAL, 'E']]],[self._TERMINAL, 'F']]],[self._TERMINAL, 'G']]],[self._TERMINAL, 'H']]],[self._TERMINAL, 'I']]],[self._TERMINAL, 'J']]],[self._TERMINAL, 'K']]],[self._TERMINAL, 'L']]],[self._TERMINAL, 'M']]],[self._TERMINAL, 'N']]],[self._TERMINAL, 'O']]],[self._TERMINAL, 'P']]],[self._TERMINAL, 'Q']]],[self._TERMINAL, 'R']]],[self._TERMINAL, 'S']]],[self._TERMINAL, 'T']]],[self._TERMINAL, 'U']]],[self._TERMINAL, 'V']]],[self._TERMINAL, 'W']]],[self._TERMINAL, 'X']]],[self._TERMINAL, 'Y']]],[self._TERMINAL, 'Z']]])
+
 
     @AST_Generator_Decorator
     def Alphabet(self):
         return self._rule([self._ORDERED_CHOICE, [[self._VAR_NAME, self.Alphabet_Lower],[self._VAR_NAME, self.Alphabet_Upper]]])
 
+
     @AST_Generator_Decorator
     def Num_Not_Zero(self):
         return self._rule([self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._TERMINAL, '1'],[self._TERMINAL, '2']]],[self._TERMINAL, '3']]],[self._TERMINAL, '4']]],[self._TERMINAL, '5']]],[self._TERMINAL, '6']]],[self._TERMINAL, '7']]],[self._TERMINAL, '8']]],[self._TERMINAL, '9']]])
 
+
     @AST_Generator_Decorator
-    def Num(self):  
+    def Num(self):
         return self._rule([self._ORDERED_CHOICE, [[self._VAR_NAME, self.Num_Not_Zero],[self._TERMINAL, '0']]])
+
 
     @AST_Generator_Decorator
     def Test_String(self):
         return self._rule([self._SEQUENCE, [[self._SEQUENCE, [[self._TERMINAL, '"'],[self._ZERO_OR_MORE, [[self._VAR_NAME, self.Alphabet]]]]],[self._TERMINAL, '"']]])
 
+
     @AST_Generator_Decorator
     def Sub(self):
         return self._rule([self._TERMINAL, '-'])
 
+
     @AST_Generator_Decorator
     def Decimal(self):
         return self._rule([self._TERMINAL, '.'])
-    
+
+
     @AST_Generator_Decorator
     def Test_Float(self):
         return self._rule([self._ORDERED_CHOICE, [[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._OPTIONAL, [[self._VAR_NAME, self.Num]]]]],[self._VAR_NAME, self.Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self.Num]]]]]]],[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._VAR_NAME, self.Num_Not_Zero]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self.Num]]]]],[self._VAR_NAME, self.Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self.Num]]]]]]]]])

@@ -1,3 +1,10 @@
+from functools import wraps
+class Node():
+    def __init__(self, type, content=None):
+        self.type = type
+        self.content = content
+        self.children = []
+
 class Parser():
 
     def __init__(self, top_level_rule=None):
@@ -5,6 +12,7 @@ class Parser():
         self.position = 0
         self.length = 0
         self.top_level_rule = top_level_rule
+        self.last_node = Node("_Grammar")
     
     def parse(self, src):
         self._set_src(src) 
@@ -14,7 +22,40 @@ class Parser():
         self.src = src
         self.length = len(src)
         self.position = 0
+        self.last_node = Node("_Grammar")
 
+    
+    def AST_Generator_Decorator(func):
+        #Weird to define inside class but it gives the decorator access to class state
+        #Which lets me do stateful things without using files
+        @wraps(func)
+        def kernel(self, *Args, **Kwargs):
+            #Before Func
+            func_name = func.__name__
+            if(func_name == "_TERMINAL"):
+                this_node = Node(func_name, Args[0])
+                temp = func(self, *Args, **Kwargs)
+                if(temp == True):
+                    self.last_node.children.append(this_node)
+                return temp
+            else:
+                this_node = Node(func_name)
+                temp_node = self.last_node 
+                self.last_node = this_node
+                temp = func(self, *Args, **Kwargs)
+                if(temp == True):
+                    temp_node.children.append(this_node)
+                    self.last_node = temp_node
+                elif(temp == False):
+                    self.last_node = temp_node
+                else:
+                    raise Exception
+                #After func
+                return temp
+        return kernel
+
+
+    @AST_Generator_Decorator
     def _rule(self, args):
         func, arg = args
         return func(arg)
@@ -24,6 +65,7 @@ class Parser():
             return True #Unsure if this should be true or false
         return self.src[self.position]
 
+    @AST_Generator_Decorator
     def _TERMINAL(self, Arg: str) -> bool:
         assert len(Arg) == 1
         if(self._token() == Arg):
@@ -31,7 +73,8 @@ class Parser():
             return True
         else:
             return False
-
+    
+    @AST_Generator_Decorator
     def _VAR_NAME(self, func):
         #where func is a grammar rule
         temp_position = self.position
@@ -40,7 +83,8 @@ class Parser():
         else:
             self.position = temp_position
             return False
-
+    
+    @AST_Generator_Decorator
     def _ORDERED_CHOICE(self, args):
         LHS_func, LHS_arg = args[0]
         RHS_func, RHS_arg = args[1]
@@ -52,7 +96,8 @@ class Parser():
             return True
         self.position = temp_position
         return False    
-
+    
+    @AST_Generator_Decorator
     def _SEQUENCE(self, args):
         temp_position = self.position
         LHS_func, LHS_arg = args[0]
@@ -67,6 +112,7 @@ class Parser():
             self.position = temp_position
             return False
 
+    @AST_Generator_Decorator
     def _ZERO_OR_MORE(self, args):
         func, arg = args[0]
         while(True):
@@ -78,6 +124,7 @@ class Parser():
                 break
         return True
     
+    @AST_Generator_Decorator
     def _ONE_OR_MORE(self, args):
         func, arg = args[0]
         temp_position = self.position
@@ -92,6 +139,7 @@ class Parser():
             self.position = temp_position
             return False
     
+    @AST_Generator_Decorator
     def _OPTIONAL(self, args):
         #Much like zero or mroe this always returns true, just doesnt consume if failed
         func, arg = args[0]
@@ -102,6 +150,7 @@ class Parser():
             self.position = temp_position
             return True
 
+    @AST_Generator_Decorator
     def _AND_PREDICATE(self, args):
         func, arg = args[0]
         temp_position = self.position
@@ -112,11 +161,13 @@ class Parser():
             self.position = temp_position
             return False
 
+    @AST_Generator_Decorator
     def _NOT_PREDICATE(self, args):
         func, arg = args[0]
         # Doesn't need to deal with consumptions since and predicate already does
         return not self._AND_PREDICATE(func(arg))
     
+    @AST_Generator_Decorator
     def _SUBEXPR(self, args):
         func, arg = args[0]
         temp_position = self.position
