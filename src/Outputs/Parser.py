@@ -5,22 +5,6 @@ class Node():
         self.content = content
         self.children = []
 
-def AST_Generator_Decorator(func):
-    @wraps(func)
-    def kernel(*Args, **Kwargs):
-        func_name = func.__name__
-        temp = func(*Args, **Kwargs)
-        if(temp == True):
-            if(func_name == "_TERMINAL"):
-                print(func_name, Args[1])
-            elif(func_name == "_VAR_NAME"):
-                print(func_name, Args[1].__name__)
-            else:
-                print(func_name)
-        return temp
-    return kernel
-
-
 class Parser():
 
     def __init__(self, top_level_rule=None):
@@ -28,6 +12,7 @@ class Parser():
         self.position = 0
         self.length = 0
         self.top_level_rule = top_level_rule
+        self.last_node = Node("_Grammar")
     
     def parse(self, src):
         self._set_src(src) 
@@ -37,6 +22,34 @@ class Parser():
         self.src = src
         self.length = len(src)
         self.position = 0
+        self.last_node = Node("_Grammar")
+
+    
+    def AST_Generator_Decorator(func):
+        #Weird to define inside class but it gives the decorator access to class state
+        #Which lets me do stateful things without using files
+        @wraps(func)
+        def kernel(self, *Args, **Kwargs):
+            #Before Func
+            func_name = func.__name__
+            if(func_name == "_TERMINAL"):
+                this_node = Node(func_name, Args[0])
+            else:
+                this_node = Node(func_name)
+            temp_node = self.last_node 
+            self.last_node = this_node
+            temp = func(self, *Args, **Kwargs)
+            if(temp == True):
+                temp_node.children.append(this_node)
+                self.last_node = temp_node
+            elif(temp == False):
+                self.last_node = temp_node
+            else:
+                raise Exception
+            #After func
+            return temp
+        return kernel
+
 
     @AST_Generator_Decorator
     def _rule(self, args):
@@ -56,6 +69,7 @@ class Parser():
             return True
         else:
             return False
+    
     @AST_Generator_Decorator
     def _VAR_NAME(self, func):
         #where func is a grammar rule

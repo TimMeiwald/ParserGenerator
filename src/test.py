@@ -1,10 +1,18 @@
 import sys, functools
+def pretty_print(node):
+    if(node.type == "_TERMINAL"):
+        print(node.type, node.content)
+    else:
+        print(node.type)
+    for child in node.children:
+        pretty_print(child)
 
 def test(parser, method, src):
-    print("\n\n")
+    print("\n")
     parser._set_src(src)
     result = method()
     print(f"Result: {result}, Position: {parser.position}")
+    pretty_print(parser.last_node)
     return result, parser.position
 
 def test_decorator(func):
