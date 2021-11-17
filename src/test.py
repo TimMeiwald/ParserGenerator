@@ -148,8 +148,8 @@ def test_Float_1(parser):
 
 
 if __name__ == "__main__":
-    #from main import generate_parser
-    #generate_parser(src_filepath="Inputs\\test.txt", target_filepath="Outputs") #Generates test parser from test.txt
+    from main import generate_parser
+    generate_parser(src_filepath="Inputs\\test.txt", target_filepath="Outputs") #Generates test parser from test.txt
     from Outputs.Parser import Parser 
     p = Parser()
     test_Sequence_1(p)

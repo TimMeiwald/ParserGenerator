@@ -9,14 +9,14 @@
 <Test_Var_Calls_1> = <Test_Ordered_Choice_1>, <Test_Ordered_Choice_1>;
 
 
-<Alphabet_Lower> = "a"/"b"/"c"/"d"/"e"/"f"/"g"/"h"/"i"/"j"/"k"/"l"/"m"/"n"/"o"/"p"/"q"/"r"/"s"/"t"/"u"/"v"/"w"/"x"/"y"/"z";
-<Alphabet_Upper> = "A"/"B"/"C"/"D"/"E"/"F"/"G"/"H"/"I"/"J"/"K"/"L"/"M"/"N"/"O"/"P"/"Q"/"R"/"S"/"T"/"U"/"V"/"W"/"X"/"Y"/"Z";
-<Alphabet> = <Alphabet_Lower>/<Alphabet_Upper>;
-<Num_Not_Zero> = "1"/"2"/"3"/"4"/"5"/"6"/"7"/"8"/"9";
-<Num> = <Num_Not_Zero>/"0";
+<_Alphabet_Lower> = "a"/"b"/"c"/"d"/"e"/"f"/"g"/"h"/"i"/"j"/"k"/"l"/"m"/"n"/"o"/"p"/"q"/"r"/"s"/"t"/"u"/"v"/"w"/"x"/"y"/"z";
+<_Alphabet_Upper> = "A"/"B"/"C"/"D"/"E"/"F"/"G"/"H"/"I"/"J"/"K"/"L"/"M"/"N"/"O"/"P"/"Q"/"R"/"S"/"T"/"U"/"V"/"W"/"X"/"Y"/"Z";
+<_Alphabet> = <_Alphabet_Lower>/<_Alphabet_Upper>;
+<_Num_Not_Zero> = "1"/"2"/"3"/"4"/"5"/"6"/"7"/"8"/"9";
+<_Num> = <_Num_Not_Zero>/"0";
 
-<Test_String> = """, <Alphabet>*, """;
+<Test_String> = """, <_Alphabet>*, """;
 
 <Sub> = "-";
 <Decimal> = ".";
-<Test_Float> = (<Sub>?, <Num>?, <Decimal>, <Num>*)/(<Sub>?, <Num_Not_Zero>, <Num>*, <Decimal>, <Num>*);
+<Test_Float> = (<Sub>?, <_Num>?, <Decimal>, <_Num>*)/(<Sub>?, <_Num_Not_Zero>, <_Num>*, <Decimal>, <_Num>*);

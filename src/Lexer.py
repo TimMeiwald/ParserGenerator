@@ -209,7 +209,7 @@ class GrammarLexer():
         if(self.src[self.position] == "<"):
             self.position += 1
             name_start = self.position
-            if(self.src[self.position] in self.Alphabet):
+            if(self.src[self.position] in [*self.Alphabet, self.Underscore]):
                 self.position += 1
                 while(True):
                     if(self.src[self.position] in self.name_char):
