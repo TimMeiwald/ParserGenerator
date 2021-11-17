@@ -34,20 +34,24 @@ class Parser():
             func_name = func.__name__
             if(func_name == "_TERMINAL"):
                 this_node = Node(func_name, Args[0])
+                temp = func(self, *Args, **Kwargs)
+                if(temp == True):
+                    self.last_node.children.append(this_node)
+                return temp
             else:
                 this_node = Node(func_name)
-            temp_node = self.last_node 
-            self.last_node = this_node
-            temp = func(self, *Args, **Kwargs)
-            if(temp == True):
-                temp_node.children.append(this_node)
-                self.last_node = temp_node
-            elif(temp == False):
-                self.last_node = temp_node
-            else:
-                raise Exception
-            #After func
-            return temp
+                temp_node = self.last_node 
+                self.last_node = this_node
+                temp = func(self, *Args, **Kwargs)
+                if(temp == True):
+                    temp_node.children.append(this_node)
+                    self.last_node = temp_node
+                elif(temp == False):
+                    self.last_node = temp_node
+                else:
+                    raise Exception
+                #After func
+                return temp
         return kernel
 
 

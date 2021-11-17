@@ -1,18 +1,28 @@
 import sys, functools
-def pretty_print(node):
+def pretty_print_parse_tree(node, depth = 0):
     if(node.type == "_TERMINAL"):
-        print(node.type, node.content)
+        print(depth, depth*"    ",node.type, f"'{node.content}'")
     else:
-        print(node.type)
+        print(depth, depth*"    ",node.type)
     for child in node.children:
-        pretty_print(child)
+        ndepth = depth + 1
+        pretty_print_parse_tree(child, ndepth)
+
+def pretty_print_out(node):
+    if(node.type == "_TERMINAL"):
+        print(node.type, f"'{node.content}'")
+    else:
+        if(node.type[0] != "_"):
+            print(node.type)
+    for child in node.children:
+        pretty_print_out(child)
 
 def test(parser, method, src):
     print("\n")
     parser._set_src(src)
     result = method()
     print(f"Result: {result}, Position: {parser.position}")
-    pretty_print(parser.last_node)
+    pretty_print_out(parser.last_node)
     return result, parser.position
 
 def test_decorator(func):
