@@ -19,4 +19,6 @@
 
 <Sub> = "-";
 <Decimal> = ".";
+<Space>  = " ";
 <Test_Float> = (<Sub>?, <_Num>?, <Decimal>, <_Num>*)/(<Sub>?, <_Num_Not_Zero>, <_Num>*, <Decimal>, <_Num>*);
+<Test_Multiexpr> = (<Test_Float>, <Space>?)+;

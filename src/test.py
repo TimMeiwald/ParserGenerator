@@ -22,7 +22,9 @@ def test(parser, method, src):
     parser._set_src(src)
     result = method()
     print(f"Result: {result}, Position: {parser.position}")
-    pretty_print_out(parser.last_node)
+    Parse_Tree_to_AST(parser.last_node)
+    #pretty_print_out(parser.last_node)
+    pretty_print_parse_tree(parser.last_node)
     return result, parser.position
 
 def test_decorator(func):
@@ -129,7 +131,7 @@ def test_Float_1(parser):
     assert test(parser, parser.Test_Float, '-1.5') == (True, 4)
     assert test(parser, parser.Test_Float, '-1.') == (True,3)
     assert test(parser, parser.Test_Float, '-0.') == (True, 3)
-    assert test(parser, parser.Test_Float, '-.964"') == (True,5)
+    assert test(parser, parser.Test_Float, '-.964"') == (True,5) #" not consided a float, but it considers -.964 a float as it should. The enclosing rule will say that a float can't be folowed by e.g "
 
     assert test(parser, parser.Test_Float, '123') == (False, 0)
     assert test(parser, parser.Test_Float, '10') == (False, 0)
@@ -144,12 +146,46 @@ def test_Float_1(parser):
     assert test(parser, parser.Test_Float, '-964"') == (False, 0)
     assert test(parser, parser.Test_Float, '-964.0') == (True, 6)
 
+@test_decorator
+def test_Multiexpr(parser):
+    #Tests that I can simply put multiple expressions behind each other. In this case loads of floats
+    assert test(parser, parser.Test_Multiexpr, '1235') == (False, 0)
+    assert test(parser, parser.Test_Multiexpr, '1235.0') == (True, 6)
+    assert test(parser, parser.Test_Multiexpr, '1235.0 1234') == (True, 7) #True but ends still at 6 + space
+    assert test(parser, parser.Test_Multiexpr, '1235.0 1234.5') == (True, 13) 
+    assert test(parser, parser.Test_Multiexpr, '1235.0 1234.5 0.') == (True, 16) 
+
+
+
+def Parse_Tree_to_AST(node):
+    # Rules with preceding _ are not relevant to the AST but exist in the parse tree and need to be collapsed. 
+    # Except terminals that need to be handled somehow
+    ######################################################################
+    # Don't touch!!! This was magic when I wrote it, Let alone now       #
+    ######################################################################
+    changes_made = False
+    for index, child in enumerate(node.children):
+        Parse_Tree_to_AST(child)
+        if(child.type[0] == "_" and child.type != "_TERMINAL"):
+            changes_made = True
+            del node.children[index]
+            for subchild in child.children[::-1]:
+                node.children.insert(index, subchild)
+
+    if(changes_made == True):
+        Parse_Tree_to_AST(node) # Basically keep collapsing children until there are no changes, 
+        # not sure why I still need to recursively do it to child though
+        #One would think you wouldn't strictly need that but hey ho
+
+
+
+
 
 
 
 if __name__ == "__main__":
-    from main import generate_parser
-    generate_parser(src_filepath="Inputs\\test.txt", target_filepath="Outputs") #Generates test parser from test.txt
+    #from main import generate_parser
+    #generate_parser(src_filepath="Inputs\\test.txt", target_filepath="Outputs") #Generates test parser from test.txt
     from Outputs.Parser import Parser 
     p = Parser()
     test_Sequence_1(p)
@@ -162,6 +198,11 @@ if __name__ == "__main__":
     test_Var_Calls_1(p)
     test_String_1(p)
     test_Float_1(p)
+    test_Multiexpr(p)
+    print("\n\n\n\n\n\n")
 
-    
-
+    #p._set_src('1235.0 1234.5 0.')
+    #p.Test_Multiexpr()
+    #n = p.last_node
+    #Parse_Tree_to_AST(n)
+    #pretty_print_parse_tree(n)

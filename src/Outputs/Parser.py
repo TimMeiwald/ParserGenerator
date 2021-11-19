@@ -264,7 +264,17 @@ class Parser():
 
 
     @AST_Generator_Decorator
+    def Space(self):
+        return self._rule([self._TERMINAL, ' '])
+
+
+    @AST_Generator_Decorator
     def Test_Float(self):
         return self._rule([self._ORDERED_CHOICE, [[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._OPTIONAL, [[self._VAR_NAME, self._Num]]]]],[self._VAR_NAME, self.Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]]]],[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._VAR_NAME, self._Num_Not_Zero]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]],[self._VAR_NAME, self.Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]]]]]])
+
+
+    @AST_Generator_Decorator
+    def Test_Multiexpr(self):
+        return self._rule([self._ONE_OR_MORE, [[self._SUBEXPR, [[self._SEQUENCE, [[self._VAR_NAME, self.Test_Float],[self._OPTIONAL, [[self._VAR_NAME, self.Space]]]]]]]]])
 
 
