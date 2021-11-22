@@ -1,6 +1,6 @@
-from Lexer import GrammarLexer
-from Parser import Parser
-from Compiler import Compiler
+from ParserGenerator.Lexer import GrammarLexer
+from ParserGenerator.Parser import Parser
+from ParserGenerator.Compiler import Compiler
 from os.path import join
 # Since classically the combination of a lexer,parser, compiler is also a compiler
 

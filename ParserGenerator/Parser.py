@@ -1,7 +1,7 @@
 from os.path import join
 from os import getcwd
 import json
-from Lexer import TokenType
+from ParserGenerator.Lexer import TokenType
 
 class Node():
     def __init__(self, type, content=None):
