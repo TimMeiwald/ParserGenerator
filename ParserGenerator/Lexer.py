@@ -71,7 +71,6 @@ class ParseTree():
     def pop_as_JSON(self, verbose = True):
         msg = self.tree.pop()
         if(msg.type == TokenType.TERMINAL):
-            print(f"'{msg.content}', {ord(msg.content)}")
             msg = [ord(msg.content), f"Terminal, {msg.content}"]
         elif(msg.type == TokenType.VAR_NAME):
             content = []
