@@ -5,6 +5,9 @@ def test(parser, method, src):
     parser._set_src(src)
     result = method()
     print(f"Result: {result}, Position: {parser.position}")
+    if(result == False):
+        for i in parser.trace.stack:
+            print(i)
     parser.Parse_Tree_to_AST(parser.last_node)
     parser.pretty_print(parser.last_node)
     return result, parser.position
