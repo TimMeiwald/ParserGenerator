@@ -83,6 +83,12 @@ class Compiler():
 
     def to_string(self, content):
         if(type(content) == int):
+            if(content == 10):
+                # Newline
+                return r"\n"
+            elif(content == 92):
+                # backslash
+                return r"\\"
             return chr(content)
         elif(type(content) == list):
             temp = ""

@@ -71,6 +71,7 @@ class ParseTree():
     def pop_as_JSON(self, verbose = True):
         msg = self.tree.pop()
         if(msg.type == TokenType.TERMINAL):
+            print(f"'{msg.content}', {ord(msg.content)}")
             msg = [ord(msg.content), f"Terminal, {msg.content}"]
         elif(msg.type == TokenType.VAR_NAME):
             content = []
@@ -301,10 +302,10 @@ class GrammarLexer():
             self.position += 1
             terminal_value = self.src[self.position]
             if(terminal_value == "\\"):
-                self.position += 1
-            if(terminal_value == "\n"):
-                self.position += 1
-            self.position += 1
+                if(self.src[self.position+1] == "n"):
+                    terminal_value = "\n"
+                    self.position += 1
+            self.position += 1 #For whichever character is in the middle
             if(self.src[self.position] in ['"',"'"]):
                 self.position += 1
                 self.ParseTree.push(TokenType.TERMINAL, terminal_value)
@@ -320,6 +321,7 @@ class GrammarLexer():
                 elif(self.src[self.position] == "*"):
                     return self.op(self.zero_or_more)
                 elif(self.src[self.position] in [";", ")"]):
+                    self.whitespace()
                     return True
                 elif(self.src[self.position] == "<"):
                     self.abort("Can't have a variable directly after a terminal")
@@ -502,4 +504,3 @@ class GrammarLexer():
 
 
     
-

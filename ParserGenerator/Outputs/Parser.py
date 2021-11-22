@@ -310,3 +310,18 @@ class Parser():
         return self._rule([self._ONE_OR_MORE, [[self._SUBEXPR, [[self._SEQUENCE, [[self._VAR_NAME, self.Test_Float],[self._OPTIONAL, [[self._VAR_NAME, self.Space]]]]]]]]])
 
 
+    @AST_Generator_Decorator
+    def backslash(self):
+        return self._rule([self._TERMINAL, '\\'])
+
+
+    @AST_Generator_Decorator
+    def newline(self):
+        return self._rule([self._TERMINAL, '\n'])
+
+
+    @AST_Generator_Decorator
+    def A(self):
+        return self._rule([self._TERMINAL, 'A'])
+
+
