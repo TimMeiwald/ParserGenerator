@@ -1,8 +1,8 @@
 from os import getcwd
 from os.path import join
 import json 
-from Lexer import TokenType
-from Parser import Node
+from ParserGenerator.Lexer import TokenType
+from ParserGenerator.Parser import Node
 class Compiler():
 
     def __init__(self):
@@ -102,8 +102,10 @@ class Compiler():
             return string
 
     def __load_core_functions(self):
-        cwd = getcwd()
-        path = join(cwd, "CoreFunctions.py")
+        from pathlib import Path
+
+        path = Path(__file__).parent
+        path = join(path, "CoreFunctions.py")
         with open(path) as fp:
             core_functions = fp.read() + "\n\n"
         return core_functions
