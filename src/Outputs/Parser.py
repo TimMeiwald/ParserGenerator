@@ -14,10 +14,42 @@ class Parser():
         self.top_level_rule = top_level_rule
         self.last_node = Node("_Grammar")
     
+    def pretty_print(self, node, depth = 0):
+        if(node.type == "_TERMINAL"):
+            print(depth, depth*"    ",node.type, f"'{node.content}'")
+        else:
+            print(depth, depth*"    ",node.type)
+        for child in node.children:
+            ndepth = depth + 1
+            self.pretty_print(child, ndepth)
+
+    def Parse_Tree_to_AST(self, node):
+        # Rules with preceding _ are not relevant to the AST but exist in the parse tree and need to be collapsed. 
+        # Except terminals that need to be handled somehow
+        ######################################################################
+        # Don't touch!!! This was magic when I wrote it, Let alone now       #
+        ######################################################################
+
+        #Modifies Node in place.
+        changes_made = False
+        for index, child in enumerate(node.children):
+            self.Parse_Tree_to_AST(child)
+            if(child.type[0] == "_" and child.type != "_TERMINAL"):
+                changes_made = True
+                del node.children[index]
+                for subchild in child.children[::-1]:
+                    node.children.insert(index, subchild)
+
+        if(changes_made == True):
+            self.Parse_Tree_to_AST(node) # Basically keep collapsing children until there are no changes, 
+            # not sure why I still need to recursively do it to child though
+            #One would think you wouldn't strictly need that but hey ho
+
     def parse(self, src):
         self._set_src(src) 
         return self.top_level_rule()
 
+    
     def _set_src(self, src):
         self.src = src
         self.length = len(src)
@@ -259,7 +291,7 @@ class Parser():
 
 
     @AST_Generator_Decorator
-    def Decimal(self):
+    def _Decimal(self):
         return self._rule([self._TERMINAL, '.'])
 
 
@@ -270,7 +302,7 @@ class Parser():
 
     @AST_Generator_Decorator
     def Test_Float(self):
-        return self._rule([self._ORDERED_CHOICE, [[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._OPTIONAL, [[self._VAR_NAME, self._Num]]]]],[self._VAR_NAME, self.Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]]]],[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._VAR_NAME, self._Num_Not_Zero]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]],[self._VAR_NAME, self.Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]]]]]])
+        return self._rule([self._ORDERED_CHOICE, [[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._OPTIONAL, [[self._VAR_NAME, self._Num]]]]],[self._VAR_NAME, self._Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]]]],[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._VAR_NAME, self._Num_Not_Zero]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]],[self._VAR_NAME, self._Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]]]]]])
 
 
     @AST_Generator_Decorator

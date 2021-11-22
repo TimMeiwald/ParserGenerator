@@ -1,30 +1,12 @@
 import sys, functools
-def pretty_print_parse_tree(node, depth = 0):
-    if(node.type == "_TERMINAL"):
-        print(depth, depth*"    ",node.type, f"'{node.content}'")
-    else:
-        print(depth, depth*"    ",node.type)
-    for child in node.children:
-        ndepth = depth + 1
-        pretty_print_parse_tree(child, ndepth)
-
-def pretty_print_out(node):
-    if(node.type == "_TERMINAL"):
-        print(node.type, f"'{node.content}'")
-    else:
-        if(node.type[0] != "_"):
-            print(node.type)
-    for child in node.children:
-        pretty_print_out(child)
 
 def test(parser, method, src):
     print("\n")
     parser._set_src(src)
     result = method()
     print(f"Result: {result}, Position: {parser.position}")
-    Parse_Tree_to_AST(parser.last_node)
-    #pretty_print_out(parser.last_node)
-    pretty_print_parse_tree(parser.last_node)
+    parser.Parse_Tree_to_AST(parser.last_node)
+    parser.pretty_print(parser.last_node)
     return result, parser.position
 
 def test_decorator(func):
@@ -155,37 +137,9 @@ def test_Multiexpr(parser):
     assert test(parser, parser.Test_Multiexpr, '1235.0 1234.5') == (True, 13) 
     assert test(parser, parser.Test_Multiexpr, '1235.0 1234.5 0.') == (True, 16) 
 
-
-
-def Parse_Tree_to_AST(node):
-    # Rules with preceding _ are not relevant to the AST but exist in the parse tree and need to be collapsed. 
-    # Except terminals that need to be handled somehow
-    ######################################################################
-    # Don't touch!!! This was magic when I wrote it, Let alone now       #
-    ######################################################################
-    changes_made = False
-    for index, child in enumerate(node.children):
-        Parse_Tree_to_AST(child)
-        if(child.type[0] == "_" and child.type != "_TERMINAL"):
-            changes_made = True
-            del node.children[index]
-            for subchild in child.children[::-1]:
-                node.children.insert(index, subchild)
-
-    if(changes_made == True):
-        Parse_Tree_to_AST(node) # Basically keep collapsing children until there are no changes, 
-        # not sure why I still need to recursively do it to child though
-        #One would think you wouldn't strictly need that but hey ho
-
-
-
-
-
-
-
 if __name__ == "__main__":
-    #from main import generate_parser
-    #generate_parser(src_filepath="Inputs\\test.txt", target_filepath="Outputs") #Generates test parser from test.txt
+    from main import generate_parser
+    generate_parser(src_filepath="Inputs\\test.txt", target_filepath="Outputs") #Generates test parser from test.txt
     from Outputs.Parser import Parser 
     p = Parser()
     test_Sequence_1(p)
