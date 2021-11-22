@@ -123,7 +123,8 @@ class Compiler():
         name = self.to_string(node.content)
         assert len(node.children) == 1 #Think it should always be 1 for this grammar at least
         child = node.children[0]
-        rule = self.write(f"def {name}(self):", 1)
+        rule = self.write("@AST_Generator_Decorator")
+        rule += self.write(f"def {name}(self):", 1)
         rule += self.write(f"return self._rule({self.__kernel(child)})\n\n",-1)
         return rule
 

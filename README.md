@@ -43,3 +43,5 @@ That is to say it behaves exactly like a functional call and can be used with al
 The following returns true if what's inside the brackets return true etc etc. Behaves like scoping. Theoretically one could write an entire grammar in one rule with a lot of subexpressions. This exists for ease of use and reading where a subexpression isn't meaningful but explicitly showing order of operations is helpful. 
 
 \<Subexpression> = ("A");
+
+If a rule is not to become part of the AST, but exists for convenience e.g <_Alphabet> in src/test.py then you need to put a preceding underscore '_' to indicate it isn't meant to be part of the AST
