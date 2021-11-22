@@ -1,9 +1,18 @@
+from collections import deque
 from functools import wraps
 class Node():
     def __init__(self, type, content=None):
         self.type = type
         self.content = content
         self.children = []
+
+class ErrorStack():
+
+    def __init__(self):
+        self.stack = deque()
+
+    def push_error(self, err_message):
+        self.stack.append(err_message)
 
 class Parser():
 
@@ -13,6 +22,7 @@ class Parser():
         self.length = 0
         self.top_level_rule = top_level_rule
         self.last_node = Node("_Grammar")
+        self.trace = ErrorStack()
     
     def pretty_print(self, node, depth = 0):
         if(node.type == "_TERMINAL"):
@@ -55,7 +65,20 @@ class Parser():
         self.length = len(src)
         self.position = 0
         self.last_node = Node("_Grammar")
+        self.trace.stack.clear()
 
+    def Errors(func):
+        @wraps(func)
+        def kernel(self, *Args, **Kwargs):
+            temp = func(self, *Args, **Kwargs)
+            if(func == True):
+                self.trace.stack.clear()
+            else:
+                func_name = func.__name__
+                if(func_name[0] != "_"):
+                    self.trace.push_error(f"{func_name} failed")
+            return temp
+        return kernel
     
     def AST_Generator_Decorator(func):
         #Weird to define inside class but it gives the decorator access to class state
@@ -86,7 +109,7 @@ class Parser():
                 return temp
         return kernel
 
-
+    @Errors
     @AST_Generator_Decorator
     def _rule(self, args):
         func, arg = args
@@ -97,6 +120,7 @@ class Parser():
             return True #Unsure if this should be true or false
         return self.src[self.position]
 
+    @Errors
     @AST_Generator_Decorator
     def _TERMINAL(self, Arg: str) -> bool:
         assert len(Arg) == 1
@@ -105,7 +129,7 @@ class Parser():
             return True
         else:
             return False
-    
+    @Errors
     @AST_Generator_Decorator
     def _VAR_NAME(self, func):
         #where func is a grammar rule
@@ -115,7 +139,7 @@ class Parser():
         else:
             self.position = temp_position
             return False
-    
+    @Errors
     @AST_Generator_Decorator
     def _ORDERED_CHOICE(self, args):
         LHS_func, LHS_arg = args[0]
@@ -128,7 +152,7 @@ class Parser():
             return True
         self.position = temp_position
         return False    
-    
+    @Errors
     @AST_Generator_Decorator
     def _SEQUENCE(self, args):
         temp_position = self.position
@@ -143,7 +167,7 @@ class Parser():
         else:
             self.position = temp_position
             return False
-
+    @Errors
     @AST_Generator_Decorator
     def _ZERO_OR_MORE(self, args):
         func, arg = args[0]
@@ -155,7 +179,7 @@ class Parser():
                 self.position = temp_position
                 break
         return True
-    
+    @Errors
     @AST_Generator_Decorator
     def _ONE_OR_MORE(self, args):
         func, arg = args[0]
@@ -170,7 +194,7 @@ class Parser():
         else:
             self.position = temp_position
             return False
-    
+    @Errors
     @AST_Generator_Decorator
     def _OPTIONAL(self, args):
         #Much like zero or mroe this always returns true, just doesnt consume if failed
@@ -181,7 +205,7 @@ class Parser():
         else:
             self.position = temp_position
             return True
-
+    @Errors
     @AST_Generator_Decorator
     def _AND_PREDICATE(self, args):
         func, arg = args[0]
@@ -192,13 +216,13 @@ class Parser():
         else:
             self.position = temp_position
             return False
-
+    @Errors
     @AST_Generator_Decorator
     def _NOT_PREDICATE(self, args):
         func, arg = args[0]
         # Doesn't need to deal with consumptions since and predicate already does
         return not self._AND_PREDICATE(func(arg))
-    
+    @Errors
     @AST_Generator_Decorator
     def _SUBEXPR(self, args):
         func, arg = args[0]

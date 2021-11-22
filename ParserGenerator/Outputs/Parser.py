@@ -1,9 +1,18 @@
+from collections import deque
 from functools import wraps
 class Node():
     def __init__(self, type, content=None):
         self.type = type
         self.content = content
         self.children = []
+
+class ErrorStack():
+
+    def __init__(self):
+        self.stack = deque()
+
+    def push_error(self, err_message):
+        self.stack.append(err_message)
 
 class Parser():
 
@@ -13,6 +22,7 @@ class Parser():
         self.length = 0
         self.top_level_rule = top_level_rule
         self.last_node = Node("_Grammar")
+        self.trace = ErrorStack()
     
     def pretty_print(self, node, depth = 0):
         if(node.type == "_TERMINAL"):
@@ -55,7 +65,20 @@ class Parser():
         self.length = len(src)
         self.position = 0
         self.last_node = Node("_Grammar")
+        self.trace.stack.clear()
 
+    def Errors(func):
+        @wraps(func)
+        def kernel(self, *Args, **Kwargs):
+            temp = func(self, *Args, **Kwargs)
+            if(func == True):
+                self.trace.stack.clear()
+            else:
+                func_name = func.__name__
+                if(func_name[0] != "_"):
+                    self.trace.push_error(f"{func_name} failed")
+            return temp
+        return kernel
     
     def AST_Generator_Decorator(func):
         #Weird to define inside class but it gives the decorator access to class state
@@ -86,7 +109,7 @@ class Parser():
                 return temp
         return kernel
 
-
+    @Errors
     @AST_Generator_Decorator
     def _rule(self, args):
         func, arg = args
@@ -97,6 +120,7 @@ class Parser():
             return True #Unsure if this should be true or false
         return self.src[self.position]
 
+    @Errors
     @AST_Generator_Decorator
     def _TERMINAL(self, Arg: str) -> bool:
         assert len(Arg) == 1
@@ -105,7 +129,7 @@ class Parser():
             return True
         else:
             return False
-    
+    @Errors
     @AST_Generator_Decorator
     def _VAR_NAME(self, func):
         #where func is a grammar rule
@@ -115,7 +139,7 @@ class Parser():
         else:
             self.position = temp_position
             return False
-    
+    @Errors
     @AST_Generator_Decorator
     def _ORDERED_CHOICE(self, args):
         LHS_func, LHS_arg = args[0]
@@ -128,7 +152,7 @@ class Parser():
             return True
         self.position = temp_position
         return False    
-    
+    @Errors
     @AST_Generator_Decorator
     def _SEQUENCE(self, args):
         temp_position = self.position
@@ -143,7 +167,7 @@ class Parser():
         else:
             self.position = temp_position
             return False
-
+    @Errors
     @AST_Generator_Decorator
     def _ZERO_OR_MORE(self, args):
         func, arg = args[0]
@@ -155,7 +179,7 @@ class Parser():
                 self.position = temp_position
                 break
         return True
-    
+    @Errors
     @AST_Generator_Decorator
     def _ONE_OR_MORE(self, args):
         func, arg = args[0]
@@ -170,7 +194,7 @@ class Parser():
         else:
             self.position = temp_position
             return False
-    
+    @Errors
     @AST_Generator_Decorator
     def _OPTIONAL(self, args):
         #Much like zero or mroe this always returns true, just doesnt consume if failed
@@ -181,7 +205,7 @@ class Parser():
         else:
             self.position = temp_position
             return True
-
+    @Errors
     @AST_Generator_Decorator
     def _AND_PREDICATE(self, args):
         func, arg = args[0]
@@ -192,13 +216,13 @@ class Parser():
         else:
             self.position = temp_position
             return False
-
+    @Errors
     @AST_Generator_Decorator
     def _NOT_PREDICATE(self, args):
         func, arg = args[0]
         # Doesn't need to deal with consumptions since and predicate already does
         return not self._AND_PREDICATE(func(arg))
-    
+    @Errors
     @AST_Generator_Decorator
     def _SUBEXPR(self, args):
         func, arg = args[0]
@@ -210,116 +234,139 @@ class Parser():
             return False
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_Sequence_1(self):
         return self._rule([self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._TERMINAL, 'a'],[self._TERMINAL, 'b']]],[self._TERMINAL, 'c']]],[self._TERMINAL, 'd']]],[self._TERMINAL, 'e']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_Ordered_Choice_1(self):
         return self._rule([self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._TERMINAL, 'a'],[self._TERMINAL, 'b']]],[self._TERMINAL, 'c']]],[self._TERMINAL, 'd']]],[self._TERMINAL, 'e']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_Zero_Or_More_1(self):
         return self._rule([self._ZERO_OR_MORE, [[self._TERMINAL, 'a']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_One_Or_More_1(self):
         return self._rule([self._ONE_OR_MORE, [[self._TERMINAL, 'a']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_Optional_1(self):
         return self._rule([self._OPTIONAL, [[self._TERMINAL, 'a']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_And_Predicate_1(self):
         return self._rule([self._AND_PREDICATE, [[self._TERMINAL, 'a']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_Not_Predicate_1(self):
         return self._rule([self._NOT_PREDICATE, [[self._TERMINAL, 'a']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_Subexpression_1(self):
         return self._rule([self._SUBEXPR, [[self._SEQUENCE, [[self._TERMINAL, 'a'],[self._TERMINAL, 'b']]]]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_Var_Calls_1(self):
         return self._rule([self._SEQUENCE, [[self._VAR_NAME, self.Test_Ordered_Choice_1],[self._VAR_NAME, self.Test_Ordered_Choice_1]]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def _Alphabet_Lower(self):
         return self._rule([self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._TERMINAL, 'a'],[self._TERMINAL, 'b']]],[self._TERMINAL, 'c']]],[self._TERMINAL, 'd']]],[self._TERMINAL, 'e']]],[self._TERMINAL, 'f']]],[self._TERMINAL, 'g']]],[self._TERMINAL, 'h']]],[self._TERMINAL, 'i']]],[self._TERMINAL, 'j']]],[self._TERMINAL, 'k']]],[self._TERMINAL, 'l']]],[self._TERMINAL, 'm']]],[self._TERMINAL, 'n']]],[self._TERMINAL, 'o']]],[self._TERMINAL, 'p']]],[self._TERMINAL, 'q']]],[self._TERMINAL, 'r']]],[self._TERMINAL, 's']]],[self._TERMINAL, 't']]],[self._TERMINAL, 'u']]],[self._TERMINAL, 'v']]],[self._TERMINAL, 'w']]],[self._TERMINAL, 'x']]],[self._TERMINAL, 'y']]],[self._TERMINAL, 'z']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def _Alphabet_Upper(self):
         return self._rule([self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._TERMINAL, 'A'],[self._TERMINAL, 'B']]],[self._TERMINAL, 'C']]],[self._TERMINAL, 'D']]],[self._TERMINAL, 'E']]],[self._TERMINAL, 'F']]],[self._TERMINAL, 'G']]],[self._TERMINAL, 'H']]],[self._TERMINAL, 'I']]],[self._TERMINAL, 'J']]],[self._TERMINAL, 'K']]],[self._TERMINAL, 'L']]],[self._TERMINAL, 'M']]],[self._TERMINAL, 'N']]],[self._TERMINAL, 'O']]],[self._TERMINAL, 'P']]],[self._TERMINAL, 'Q']]],[self._TERMINAL, 'R']]],[self._TERMINAL, 'S']]],[self._TERMINAL, 'T']]],[self._TERMINAL, 'U']]],[self._TERMINAL, 'V']]],[self._TERMINAL, 'W']]],[self._TERMINAL, 'X']]],[self._TERMINAL, 'Y']]],[self._TERMINAL, 'Z']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def _Alphabet(self):
         return self._rule([self._ORDERED_CHOICE, [[self._VAR_NAME, self._Alphabet_Lower],[self._VAR_NAME, self._Alphabet_Upper]]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def _Num_Not_Zero(self):
         return self._rule([self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._ORDERED_CHOICE, [[self._TERMINAL, '1'],[self._TERMINAL, '2']]],[self._TERMINAL, '3']]],[self._TERMINAL, '4']]],[self._TERMINAL, '5']]],[self._TERMINAL, '6']]],[self._TERMINAL, '7']]],[self._TERMINAL, '8']]],[self._TERMINAL, '9']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def _Num(self):
         return self._rule([self._ORDERED_CHOICE, [[self._VAR_NAME, self._Num_Not_Zero],[self._TERMINAL, '0']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_String(self):
         return self._rule([self._SEQUENCE, [[self._SEQUENCE, [[self._TERMINAL, '"'],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Alphabet]]]]],[self._TERMINAL, '"']]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Sub(self):
         return self._rule([self._TERMINAL, '-'])
 
 
+    @Errors
     @AST_Generator_Decorator
     def _Decimal(self):
         return self._rule([self._TERMINAL, '.'])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Space(self):
         return self._rule([self._TERMINAL, ' '])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_Float(self):
         return self._rule([self._ORDERED_CHOICE, [[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._OPTIONAL, [[self._VAR_NAME, self._Num]]]]],[self._VAR_NAME, self._Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]]]],[self._SUBEXPR, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._SEQUENCE, [[self._OPTIONAL, [[self._VAR_NAME, self.Sub]]],[self._VAR_NAME, self._Num_Not_Zero]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]],[self._VAR_NAME, self._Decimal]]],[self._ZERO_OR_MORE, [[self._VAR_NAME, self._Num]]]]]]]]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def Test_Multiexpr(self):
         return self._rule([self._ONE_OR_MORE, [[self._SUBEXPR, [[self._SEQUENCE, [[self._VAR_NAME, self.Test_Float],[self._OPTIONAL, [[self._VAR_NAME, self.Space]]]]]]]]])
 
 
+    @Errors
     @AST_Generator_Decorator
     def backslash(self):
         return self._rule([self._TERMINAL, '\\'])
 
 
+    @Errors
     @AST_Generator_Decorator
     def newline(self):
         return self._rule([self._TERMINAL, '\n'])
 
 
+    @Errors
     @AST_Generator_Decorator
     def A(self):
         return self._rule([self._TERMINAL, 'A'])
