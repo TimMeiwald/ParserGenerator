@@ -71,10 +71,10 @@ class Parser():
         @wraps(func)
         def kernel(self, *Args, **Kwargs):
             temp = func(self, *Args, **Kwargs)
+            func_name = func.__name__
             if(func == True):
-                self.trace.stack.clear()
+                self.trace.push_error(f"{func_name} succeeded")
             else:
-                func_name = func.__name__
                 if(func_name[0] != "_"):
                     self.trace.push_error(f"{func_name} failed")
             return temp
