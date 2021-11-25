@@ -73,7 +73,8 @@ class Parser():
             temp = func(self, *Args, **Kwargs)
             func_name = func.__name__
             if(temp == True):
-                self.trace.push_error(f"{func_name} succeeded")
+                if(func_name[0] != "_"):
+                    self.trace.push_error(f"{func_name} succeeded")
             else:
                 if(func_name[0] != "_"):
                     self.trace.push_error(f"{func_name} failed")
