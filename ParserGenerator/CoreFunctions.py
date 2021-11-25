@@ -91,7 +91,7 @@ class Parser():
                     self.trace.push_error(f"{func_name} succeeded")
             else:
                 if(func_name[0] != "_"):
-                    self.trace.push_error(f"{func_name} failed")
+                    self.trace.push_error(f"{func_name} failed at '{self.src[self.position]}'")
             return temp
         return kernel
     
