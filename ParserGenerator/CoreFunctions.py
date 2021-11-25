@@ -72,7 +72,7 @@ class Parser():
         def kernel(self, *Args, **Kwargs):
             temp = func(self, *Args, **Kwargs)
             func_name = func.__name__
-            if(func == True):
+            if(temp == True):
                 self.trace.push_error(f"{func_name} succeeded")
             else:
                 if(func_name[0] != "_"):
