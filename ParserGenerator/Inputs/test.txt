@@ -24,5 +24,8 @@
 <Test_Multiexpr> = (<Test_Float>, <Space>?)+;
 <backslash> = "\";
 
+
+<HT> = "\t";
+<LF> = "\r";
 <newline> = "\n";
 <A> = "A";
