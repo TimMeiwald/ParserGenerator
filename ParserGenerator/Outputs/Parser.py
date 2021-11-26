@@ -382,6 +382,18 @@ class Parser():
 
     @Errors
     @AST_Generator_Decorator
+    def HT(self):
+        return self._rule([self._TERMINAL, '\t'])
+
+
+    @Errors
+    @AST_Generator_Decorator
+    def LF(self):
+        return self._rule([self._TERMINAL, '\r'])
+
+
+    @Errors
+    @AST_Generator_Decorator
     def newline(self):
         return self._rule([self._TERMINAL, '\n'])
 

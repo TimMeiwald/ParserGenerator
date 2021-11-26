@@ -89,6 +89,10 @@ class Compiler():
             elif(content == 92):
                 # backslash
                 return r"\\"
+            elif(content == 9):
+                return r"\t"
+            elif(content == 13):
+                return r"\r"
             return chr(content)
         elif(type(content) == list):
             temp = ""

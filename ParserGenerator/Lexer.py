@@ -304,6 +304,13 @@ class GrammarLexer():
                 if(self.src[self.position+1] == "n"):
                     terminal_value = "\n"
                     self.position += 1
+                elif(self.src[self.position+1] == "t"):
+                    terminal_value = "\t"
+                    self.position += 1
+                elif(self.src[self.position+1] == "r"):
+                    terminal_value = "\r"
+                    self.position += 1
+
             self.position += 1 #For whichever character is in the middle
             if(self.src[self.position] in ['"',"'"]):
                 self.position += 1
