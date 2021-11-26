@@ -84,14 +84,19 @@ class Parser():
     def Errors(func):
         @wraps(func)
         def kernel(self, *Args, **Kwargs):
+            try:
+                char = self.src[self.position]
+            except IndexError:
+                char = ""
             temp = func(self, *Args, **Kwargs)
             func_name = func.__name__
             if(temp == True):
                 if(func_name[0] != "_"):
-                    self.trace.push_error(f"{func_name} succeeded")
+                    self.trace.push_error(f"{func_name} matched '{char}'")
             else:
-                if(func_name[0] != "_"):
-                    self.trace.push_error(f"{func_name} failed at '{self.src[self.position]}'")
+                pass
+                #if(func_name[0] != "_"):
+                #    self.trace.push_error(f"{func_name} failed at '{self.src[self.position]}'")
             return temp
         return kernel
     

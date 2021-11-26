@@ -28,7 +28,7 @@ class Parser():
         if(node.type == "_TERMINAL"):
             print(depth, depth*"    ",node.type, f"'{node.content}'")
         else:
-            print(depth, depth*"    ",node.type)
+            print(depth, depth*"    ",node.type, f"'{node.content}'")
         for child in node.children:
             ndepth = depth + 1
             self.pretty_print(child, ndepth)
@@ -55,6 +55,20 @@ class Parser():
             # not sure why I still need to recursively do it to child though
             #One would think you wouldn't strictly need that but hey ho
 
+
+    def aggregate_terminals(self, node):
+        if(node.content == None):
+            node.content = ""
+        flag = False
+        for child in node.children:
+            self.aggregate_terminals(child)
+            if(child.type != "_TERMINAL"):
+                flag = True
+        if(flag == False):
+            for child in node.children:
+                node.content += child.content
+            node.children = []
+
     def parse(self, src):
         self._set_src(src) 
         return self.top_level_rule()
@@ -70,13 +84,19 @@ class Parser():
     def Errors(func):
         @wraps(func)
         def kernel(self, *Args, **Kwargs):
+            try:
+                char = self.src[self.position]
+            except IndexError:
+                char = ""
             temp = func(self, *Args, **Kwargs)
-            if(func == True):
-                self.trace.stack.clear()
-            else:
-                func_name = func.__name__
+            func_name = func.__name__
+            if(temp == True):
                 if(func_name[0] != "_"):
-                    self.trace.push_error(f"{func_name} failed")
+                    self.trace.push_error(f"{func_name} matched '{char}'")
+            else:
+                pass
+                #if(func_name[0] != "_"):
+                #    self.trace.push_error(f"{func_name} failed at '{self.src[self.position]}'")
             return temp
         return kernel
     
