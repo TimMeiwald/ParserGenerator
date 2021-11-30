@@ -239,9 +239,9 @@ class Parser():
     @Errors
     @AST_Generator_Decorator
     def _NOT_PREDICATE(self, args):
-        func, arg = args[0]
+        #func, arg = args[0]
         # Doesn't need to deal with consumptions since and predicate already does
-        return not self._AND_PREDICATE(func(arg))
+        return not self._AND_PREDICATE(args)
     @Errors
     @AST_Generator_Decorator
     def _SUBEXPR(self, args):
